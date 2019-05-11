@@ -1,0 +1,247 @@
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <algorithm>
+using namespace std;
+struct process
+{
+    string name;
+    int arrive_time;
+    int server_time;
+    int server_time1;
+};
+void input_process(vector<process> &Process, int N) //输入进程
+{
+    for (int i = 0; i < N; i++)
+    {
+        process *p = new process;
+        cin >> p->name >> p->arrive_time >> p->server_time;
+        p->server_time1 = p->server_time;
+        Process.push_back(*p);
+    }
+}
+void FCFS(vector<process> process, int N)
+{
+    int time = process[0].arrive_time; //开始时间为第一个进程的到达时间
+    double T = 0, W = 0;               //周转时间和带权周转时间
+    printf("先来先服务算法\n\n");
+    for (int i = 0; i < N; i++) //遍历进程的容器
+    {
+        int start_time;                    //每个进程的开始时间
+        if (time < process[i].arrive_time) //如果上个进程的结束时间小于下个进程到达时间
+        {
+            start_time = process[i].arrive_time; //这个进程的开始的时间即为次进程的到达时间
+            time = start_time;
+        }
+        else
+            start_time = time;
+        time += process[i].server_time; //此进程的结束时间
+        T += time - process[i].arrive_time;
+        W += double(time - process[i].arrive_time) / process[i].server_time;
+        printf("%d-%s-%d\n", start_time, process[i].name.c_str(), time);
+    }
+    printf("\n平均周转时间：%.2f 平均带权周转时间：%.2f\n\n", T / N, W / N);
+}
+void SJF(vector<process> Process, int N)
+{
+    int time = 0; //上个进程的结束时间
+    double T = 0, W = 0;
+    printf("短作业优先算法\n\n");
+    while (Process.size()) //容器大小为0时推出
+    {
+        int i = 0, shortest_size = 0, shortest_time = 100000; //i记录下标 ，时间最短的进程下标，最短服务时间
+        int start_time, flag = 1;                             //flag记录进程到达时间大于先前执行进程的结束时间的进程前面是否
+        //有达时间小于先前进程的结束时间的进程
+        for (auto it : Process) //遍历
+        {
+            if (time < it.arrive_time)
+            {              //当进程的到达时间大于先前执行进程的结束时间
+                if (!flag) //flag=0，说明次进程前出现到达时间小于time的进程，此后大于time到达的进程直接break
+                    break;
+                if (shortest_time > it.server_time) //比最短执行时间还短的话，更新最短执行时间
+                {
+                    shortest_size = i; //记录最短的进程的下标
+                    shortest_time = it.server_time;
+                }
+                start_time = Process[shortest_size].arrive_time;  //进程开始时间为进程到达时间，此时
+                                                                  //进程到达时间大于time
+                if (Process[i + 1].arrive_time != it.arrive_time) //如果下一个进程到达晚于次进程，不同比较服务时间
+                    break;                                        //到达时间相同时，比价谁的服务时间更短，则不break
+            }
+            else
+            {
+                flag = 0;
+                if (shortest_time > it.server_time) //进程到达时间都小于time，比较服务时间
+                {
+                    shortest_size = i;
+                    shortest_time = it.server_time;
+                    start_time = time;
+                }
+            }
+            i++;
+        }
+        time = start_time + Process[shortest_size].server_time;
+        T += time - Process[shortest_size].arrive_time;
+        W += double(time - Process[shortest_size].arrive_time) / Process[shortest_size].server_time;
+        printf("%d-%s-%d\n", start_time, Process[shortest_size].name.c_str(), time);
+        Process.erase(Process.begin() + shortest_size);
+    }
+    printf("\n平均周转时间：%.2f 平均带权周转时间：%.2f\n\n", T / N, W / N);
+}
+
+void PSA(vector<process> Process, int N)
+{
+    int time = 0; //上个进程的结束时间
+    double T = 0, W = 0;
+    printf("优先权算法\n\n");
+    while (Process.size()) //容器大小为0时推出
+    {
+        int i = 0, shortest_size = 0;
+        double priority = 0;      //i记录下标 ，最高优先权的进程下标，最大优先权
+        int start_time, flag = 1; //flag记录进程到达时间大于先前执行进程的结束时间的进程前面是否有达时间小于先前进程的结束时间的进程
+        for (auto it : Process)   //遍历
+        {
+            if (time <= it.arrive_time)
+            {              //当进程的到达时间大于先前执行进程的结束时间，谁先到达先执行谁
+                if (!flag) //flag=0，说明次进程前出现到达时间小于time的进程，此后大于time到达的进程直接break
+                    break;
+                shortest_size = 0;
+                start_time = Process[shortest_size].arrive_time;
+                break; //执行第一个到达的
+            }
+            else
+            {
+                flag = 0;
+                double priority_this = double(it.server_time + time - it.arrive_time) / it.server_time;
+                if (priority < priority_this) //进程到达时间都小于time，比较服务时间
+                {
+                    shortest_size = i;
+                    priority = priority_this;
+                    start_time = time;
+                }
+            }
+            i++;
+        }
+        time = start_time + Process[shortest_size].server_time;
+        T += time - Process[shortest_size].arrive_time;
+        W += double(time - Process[shortest_size].arrive_time) / Process[shortest_size].server_time;
+        printf("%d-%s-%d\n", start_time, Process[shortest_size].name.c_str(), time);
+        Process.erase(Process.begin() + shortest_size);
+    }
+    printf("\n平均周转时间：%.2f 平均带权周转时间：%.2f\n\n", T / N, W / N);
+}
+
+void MFQ(vector<process> Process, int N)
+{
+    int time = 0;
+    //上个进程的结束时间,flag表示执行第几队列
+    double T = 0, W = 0;
+    queue<process> q1, q2, q3;
+    int slice2 = 0, slice3 = 0; //执行到第几个时间片
+    printf("多级队列反馈算法\n\n");
+    auto it = Process.begin(); //进程序列第一哥进程
+    for (;; time++)
+    {
+        while (!Process.empty()) //当进程序列不为空
+        {
+            if (it->arrive_time == time) //如果进程的到达时间等于现在的时间，将进程放入第一队列，同时多个进程到达，全部放入
+            {
+                q1.push(*it);
+                Process.erase(it);
+
+                if (slice2 != 0) //如果队列2有进程在运行，放回队列2尾部。重置时间片为0
+                {
+                    q2.push(q2.front());
+                    q2.pop();
+                    slice2 = 0;
+                }
+                else if (slice3 != 0) //如果队列2为空，队列3有进程在运行，放回队列3尾部。重置时间片为0
+                {
+                    q3.push(q3.front());
+                    q3.pop();
+                    slice3 = 0;
+                }
+            }
+            else
+                break; //当进程到达时间大于现在的时间，跳出
+        }
+        if (!q1.empty()) //当队列1不为空
+        {
+            printf("%d-%s-%d\n", time, q1.front().name.c_str(), time + 1);
+            q1.front().server_time--;        //服务时间减1
+            if (q1.front().server_time == 0) //服务时间为0，从队列1删除
+            {
+                T += time - q1.front().arrive_time; //计算T，W
+                W += double(time - q1.front().arrive_time) / q1.front().server_time1;
+                q1.pop();
+            }
+            else //时间片完，服务时间不为0，放入队列2
+            {
+                q2.push(q1.front());
+                q1.pop();
+            }
+        }
+        else if (!q2.empty()) //，队列1为空，队列2不为空
+        {
+            printf("%d-%s-%d\n", time, q2.front().name.c_str(), time + 1);
+            q2.front().server_time--;
+            slice2++;
+            if (q2.front().server_time == 0)
+            {
+                T += time - q2.front().arrive_time;
+                W += double(time - q2.front().arrive_time) / q2.front().server_time1;
+                q2.pop();
+                slice2 = 0;
+            }
+            if (slice2 == 2)
+            {
+                q3.push(q2.front());
+                q2.pop();
+                slice2 = 0;
+            }
+        }
+        else if (!q3.empty()) //队列1 2 为空。执行队列3
+        {
+
+            printf("%d-%s-%d\n", time, q3.front().name.c_str(), time + 1);
+            q3.front().server_time--;
+            slice3++;
+            if (q3.front().server_time == 0)
+            {
+                T += time - q3.front().arrive_time;
+                W += double(time - q3.front().arrive_time) / q3.front().server_time1;
+                q3.pop();
+                slice3 = 0;
+            }
+            if (slice3 == 4)
+            {
+                q3.push(q3.front());
+                q3.pop();
+                slice3 = 0;
+            }
+        }
+        if (Process.empty() && q1.empty() && q2.empty() && q3.empty()) //当全部为空，退出
+        {
+            printf("\n平均周转时间：%.2f 平均带权周转时间：%.2f\n\n", T / N, W / N);
+            break;
+        }
+        //当进程队列不为空，三个队列为空时，time++，直到time等于进程到达时间
+    }
+}
+
+int main()
+{
+    int N; //进程个数
+    cin >> N;
+    vector<process> Process;
+    input_process(Process, N);
+    FCFS(Process, N);
+    SJF(Process, N);
+    PSA(Process, N);
+    MFQ(Process, N);
+    system("pause");
+    getchar();
+    return 0;
+}
