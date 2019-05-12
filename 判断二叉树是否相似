@@ -1,0 +1,49 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <unordered_map>
+using namespace std;
+
+typedef struct BitNode
+{
+    char data;
+    struct BitNode *lchild, *rchild;
+} * BitTree;
+
+BitTree InitTree()
+{
+    BitNode *p;
+    char a;
+    cin >> a;
+    if (a == '#')
+        p = NULL;
+    else
+    {
+        p = new BitNode;
+        p->data = a;
+        p->lchild = InitTree();
+        p->rchild = InitTree();
+    }
+    return p;
+}
+bool like(BitTree a, BitTree b)
+{
+    if (a == NULL && b == NULL)
+        return true;
+    else if (a == NULL || b == NULL)
+        return false;
+    else
+        return like(a->lchild, b->lchild) && like(a->rchild, b->rchild);
+}
+int main()
+{
+    BitTree a, b;
+    a = InitTree();
+    b = InitTree();
+    if (like(a, b))
+        cout << "A与B相似"<<endl;
+    else
+        cout << "A与B不相似"<<endl;
+    system("pause");
+ 
+}
