@@ -1,0 +1,166 @@
+#include <string>
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+using namespace std;
+struct head
+{
+    char b;  //存储字符
+    int count;  //字符个数
+    int parent = 0, lch = 0, rch = 0;  
+    string bits;  //哈夫曼码
+};
+void read_file(unordered_map<char, int> &chars, int &cpp_count,string address)  //读文件，得到字符和字符个数
+{  
+    FILE *fp = fopen(address.c_str(), "r");
+    if (fp == NULL)
+    {
+        cout << "文件打开失败" << endl;
+        system("pause");
+        exit(-1);
+    }
+    while (!feof(fp))
+    {
+        cpp_count++;  //总字符个数
+        char ch=fgetc(fp);
+        chars[ch]++;  //每个字符的个数
+    }
+    fclose(fp);
+}
+void select(head *tree, int i, int &s1, int &s2)  //选择权值最小的两个节点
+{
+    int max1 = 100000, max2 = 1000000;  //权值，max1储存最小的结点，max2储存第二小的结点
+    for (int j = i; j > 0; j--)
+    {
+        if (tree[j].count < max1 && tree[j].parent == 0)  //  如果当前结点的权值比最小节点的权值还小，把最小的结点的值和下标给第二小，并把当前结点的值给最小
+        {
+            max2 = max1;
+            s2 = s1;
+            max1 = tree[j].count;
+
+            s1 = j;
+        }
+        else if (tree[j].count < max2 && tree[j].parent == 0 && j != s1)  //当前结点的权值比最小的权值大，但小于第二小，把当前结点的权值和下标赋给第二小
+        {
+            max2 = tree[j].count;
+            s2 = j;
+        }
+    }
+}
+void creat_huffmant(head *&tree, unordered_map<char, int> chars, unordered_map<char, string> &hd, int &tree_top)
+{
+    int N = chars.size();  //N为符号的种类数
+    int M = 2 * N - 1; //数的结点数，0结点未用
+    tree_top = M;  //tree-top表示根节点
+    tree = new head[M + 1];  
+    int i = 1;  
+    for (auto it : chars) //所有叶子结点的赋值
+    {
+        tree[i].b = it.first;
+        tree[i].count = it.second;
+        i++;
+    }
+    for (i = N + 1; i <= M; i++) //选择父亲节点为0，并且权值最小的两个结点
+    {
+        int s1 = 100000, s2 = 100000;
+        select(tree, i - 1, s1, s2);
+        tree[s1].parent = i;
+        tree[s2].parent = i;
+        tree[i].lch = s1;
+        tree[i].rch = s2;
+        tree[i].count = tree[s1].count + tree[s2].count;
+    }
+
+    for (i = 1; i <= N; i++) 
+    {
+        string code = "";
+        for (int c = i, f = tree[i].parent; f != 0; c = f, f = tree[f].parent) //编码
+        {
+            if (tree[f].lch == c) //如果该节点是父亲节点的左孩子，编码追加0
+                code += '0';
+            else
+                code += '1'; //右孩子则追加1
+        }
+        hd[tree[i].b] = string(code.rbegin(), code.rend()); //，code逆置为哈夫曼编码，hd储存每种符号和它的哈弗曼编码
+        tree[i].bits = string(code.rbegin(), code.rend()); //给数的bits赋值该符号的哈弗曼编码
+    }
+}
+void encode(unordered_map<char, string> hd, int &txt_count,string address) //读到哪种符号就写入其哈夫曼编码
+{
+    FILE *fp = fopen(address.c_str(), "r");
+    FILE *write = fopen("D:\\2.txt", "w");
+    if (fp == NULL)
+    {
+        cout << "文件打开失败" << endl;
+        system("pause");
+        exit(-1);
+    }
+    while (!feof(fp))
+    {
+        string ch = hd[fgetc(fp)];
+        fputs(ch.c_str(), write);
+        txt_count += ch.size();
+    }
+    fclose(fp);
+    fclose(write);
+    cout << "编码成功" << endl;
+}
+
+void decode(head *tree, int tree_top)
+{
+    FILE *fp = fopen("D:\\2.txt", "r");
+    vector<int> code;
+    FILE *write = fopen("D:\\3.txt", "w");
+    if (fp == NULL)
+    {
+        cout << "文件打开失败" << endl;
+        system("pause");
+        exit(-1);
+    }
+    int p = tree_top;  //从根结点开始
+    while (!feof(fp))
+        code.push_back(fgetc(fp));
+    for (auto it : code) //遍历哈夫曼编码文件
+    {
+        if (it == '0')  //读到0寻找其左孩子
+        {
+            if (tree[p].lch != 0) 当其左孩子不为0时
+            {
+                p = tree[p].lch;
+            }
+        }
+        else if (it == '1')
+        {
+            if (tree[p].rch != 0)
+            {
+                p = tree[p].rch;
+            }
+        }
+        if (tree[p].lch == 0 && tree[p].rch == 0) //当其左孩子右孩子为0时，为叶子结点
+        {
+            fputc(tree[p].b, write); //写入这个节点的符号
+            p = tree_top;//从新定位到根节点
+        }
+    }
+    fclose(fp);
+    fclose(write);
+    cout << "复原成功" << endl;
+}
+
+int main()
+{
+    head *tree;
+    string address;
+    cout<<"输入文件地址"<<endl;
+    cin>>address;
+    int cpp_count = 0, txt_count = 0, tree_top;
+    unordered_map<char, string> hd;
+    unordered_map<char, int> chars;
+    read_file(chars, cpp_count,address);
+    creat_huffmant(tree, chars, hd, tree_top);
+    encode(hd, txt_count,address);
+    decode(tree, tree_top);
+    cout <<"压缩比："<< double(txt_count) / (cpp_count * 8) << endl;
+    system("pause");
+    return 0;
+}
