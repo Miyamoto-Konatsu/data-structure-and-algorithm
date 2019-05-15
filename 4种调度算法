@@ -5,17 +5,18 @@
 using namespace std;
 struct process
 {
-    string name;//进程名
-    int arrive_time; //到达时间
-    int server_time; //服务时间
-    int server_time1; //服务时间 
+    string name;      //进程名
+    int arrive_time;  //到达时间
+    int server_time;  //服务时间
+    int server_time1; //服务时间
+    int slice_time = 0;
 };
 struct output
 {
-    int start_time;  //服务开始时间
-    string name;  //进程名
-    int execution_time = 1;  //服务时间 
-    output(int time, string name) : start_time(time), name(name) {} 
+    int start_time;         //服务开始时间
+    string name;            //进程名
+    int execution_time = 1; //服务时间
+    output(int time, string name) : start_time(time), name(name) {}
 };
 void input(vector<process> &Process, int N) //输入进程
 {
@@ -140,10 +141,9 @@ void MFQ(vector<process> Process, int N)
     int time = 0; //开始执行的时间
     double W = 0;
     queue<process> q1, q2, q3;
-    queue<output> out;          //把要输出的进程放入队列
-    int slice2 = 0, slice3 = 0; //执行到第几个时间片
+    queue<output> out; //把要输出的进程放入队列
     printf("多级队列反馈算法\n\n");
-    auto it = Process.begin(); //进程序列第一哥进程
+    auto it = Process.begin(); //进程序列第一个进程
     for (;; time++)
     {
         while (!Process.empty()) //当进程序列不为空
@@ -152,17 +152,21 @@ void MFQ(vector<process> Process, int N)
             {
                 q1.push(*it);
                 Process.erase(it);
-                if (slice2 != 0) //如果队列2有进程在运行，放回队列2尾部。重置时间片为0
+                if (!q2.empty())
                 {
-                    q2.push(q2.front());
-                    q2.pop();
-                    slice2 = 0;
+                    if (q2.front().slice_time != 0) //如果队列2有进程在运行，放回队列2尾部
+                    {
+                        q2.push(q2.front());
+                        q2.pop();
+                    }
                 }
-                else if (slice3 != 0) //如果队列2为空，队列3有进程在运行，放回队列3尾部。重置时间片为0
+                else if (!q3.empty())
                 {
-                    q3.push(q3.front());
-                    q3.pop();
-                    slice3 = 0;
+                    if (q3.front().slice_time != 0) //如果队列2为空，队列3有进程在运行，放回队列3尾部
+                    {
+                        q3.push(q3.front());
+                        q3.pop();
+                    }
                 }
             }
             else
@@ -193,19 +197,19 @@ void MFQ(vector<process> Process, int N)
             else //如果和队列第一个进程名相同。执行时间++
                 out.front().execution_time++;
             q2.front().server_time--;
-            slice2++;
+            q2.front().slice_time++;
             if (q2.front().server_time == 0)
             {
 
                 W += double(time + 1 - q2.front().arrive_time) / q2.front().server_time1;
+
                 q2.pop();
-                slice2 = 0;
             }
-            if (slice2 == 2)
+            else if (q2.front().slice_time == 2)
             {
+                q2.front().slice_time = 0;
                 q3.push(q2.front());
                 q2.pop();
-                slice2 = 0;
             }
         }
         else if (!q3.empty()) //队列1 2 为空。执行队列3
@@ -217,18 +221,17 @@ void MFQ(vector<process> Process, int N)
                 out.front().execution_time++;
             // printf("%d-%s-%d\n", time, q3.front().name.c_str(), time + 1);
             q3.front().server_time--;
-            slice3++;
+            q3.front().slice_time++;
             if (q3.front().server_time == 0)
             {
                 W += double(time + 1 - q3.front().arrive_time) / q3.front().server_time1;
                 q3.pop();
-                slice3 = 0;
             }
-            if (slice3 == 4)
+            else if (q3.front().slice_time == 4)
             {
+                q3.front().slice_time = 0;
                 q3.push(q3.front());
                 q3.pop();
-                slice3 = 0;
             }
         }
 
@@ -254,6 +257,7 @@ void MFQ(vector<process> Process, int N)
 int main()
 {
     int N; //进程个数
+
     cin >> N;
     vector<process> Process;
     input(Process, N);
