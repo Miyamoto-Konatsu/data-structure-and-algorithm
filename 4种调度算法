@@ -1,7 +1,4 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <queue>
+#include<bits/stdc++.h>
 using namespace std;
 struct process
 {
@@ -10,6 +7,7 @@ struct process
     int server_time;  //服务时间
     int server_time1; //服务时间
     int slice_time = 0;
+    int state=0;
 };
 struct output
 {
@@ -154,16 +152,18 @@ void MFQ(vector<process> Process, int N)
                 Process.erase(it);
                 if (!q2.empty())
                 {
-                    if (q2.front().slice_time != 0) //如果队列2有进程在运行，放回队列2尾部
+                    if (q2.front().state != 0) //如果队列2有进程在运行，放回队列2尾部
                     {
+                        q2.front().state=0;
                         q2.push(q2.front());
                         q2.pop();
                     }
                 }
                 else if (!q3.empty())
                 {
-                    if (q3.front().slice_time != 0) //如果队列2为空，队列3有进程在运行，放回队列3尾部
+                    if (q3.front().state != 0) //如果队列2为空，队列3有进程在运行，放回队列3尾部
                     {
+                        q3.front().state=0;
                         q3.push(q3.front());
                         q3.pop();
                     }
@@ -196,17 +196,17 @@ void MFQ(vector<process> Process, int N)
                 out.push(output(time, q2.front().name));
             else //如果和队列第一个进程名相同。执行时间++
                 out.front().execution_time++;
+            q2.front().state=1;
             q2.front().server_time--;
             q2.front().slice_time++;
             if (q2.front().server_time == 0)
             {
-
                 W += double(time + 1 - q2.front().arrive_time) / q2.front().server_time1;
-
                 q2.pop();
             }
             else if (q2.front().slice_time == 2)
             {
+                q2.front().state=0;
                 q2.front().slice_time = 0;
                 q3.push(q2.front());
                 q2.pop();
@@ -220,6 +220,7 @@ void MFQ(vector<process> Process, int N)
             else
                 out.front().execution_time++;
             // printf("%d-%s-%d\n", time, q3.front().name.c_str(), time + 1);
+            q3.front().state=1;
             q3.front().server_time--;
             q3.front().slice_time++;
             if (q3.front().server_time == 0)
@@ -229,6 +230,7 @@ void MFQ(vector<process> Process, int N)
             }
             else if (q3.front().slice_time == 4)
             {
+                q3.front().state=0;
                 q3.front().slice_time = 0;
                 q3.push(q3.front());
                 q3.pop();
