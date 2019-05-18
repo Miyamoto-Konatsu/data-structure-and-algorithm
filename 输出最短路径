@@ -1,0 +1,66 @@
+#include <bits/stdc++.h>
+using namespace std;
+//输出以某点为源点开始的所有能到达点的最短路径
+const int inf = 100000; //无限距离
+int dis[500];           //最短路径的长度
+int dis_x_y[500][500];  //两座城市间的距离
+bool visit[500];
+int n, m, start;
+string path[500];  //到达每个点的最短路径
+string point[500]; //每个店的名称
+void dijk()
+{
+    dis[start] = 0;
+    for (int i = 0; i < n; i++)
+    {
+        int next = -1, min_length = inf; //找到第下一个距离最短的路径点，第一个路径点为起点
+        for (int j = 0; j < n; j++)
+        {
+            if (dis[j] < min_length && !visit[j] ) //下一个最短路径点为 next
+            {
+                min_length = dis[j];
+                next = j;
+            }
+        }
+        visit[next] = true; //把下一个最短路径点设为以访问
+        for (int k = 0; k < n; k++)
+        {
+
+            if (dis[k] > dis[next] + dis_x_y[next][k] &&next!=-1) //计算其他点与下个点的距离最短的距离
+            {                       //next==-1说明没有能到达的点了
+                dis[k] = dis[next] + dis_x_y[next][k];
+                path[k] = path[next] + point[k];
+            }
+        }
+    }
+}
+int main()
+{
+    cin >> n >> m >> start;     //输入点数，边数，开始点坐标
+    for (int i = 0; i < n; i++) //输入点的名称
+    {
+        cin >> point[i];
+    }
+    fill(dis, dis + 500, inf);
+    fill(dis_x_y[0], dis_x_y[0] + 500 * 500, inf);
+    fill(visit, visit + 500, false);
+    for (int i = 0; i < 500; i++)
+        path[i] = point[start];
+    for (int i = 0; i < m; i++) //输入边的信息
+    {
+        int from, to, distance;
+        cin >> from >> to >> distance;
+        dis_x_y[from][to] = distance;
+    }
+    dijk();
+    for (int i = 0; i < n; i++)
+    {
+        if (i == start)
+            continue;
+        else if (path[i] != point[start]) //如果相等则说明无法到达此点
+        {
+            cout << point[start] << "->" << point[i] << ':' << path[i] << endl;
+        }
+    }
+    system("pause");
+}
