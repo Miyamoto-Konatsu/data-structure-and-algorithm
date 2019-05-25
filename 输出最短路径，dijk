@@ -3,7 +3,7 @@ using namespace std;
 //输出以某点为源点开始的所有能到达点的最短路径
 const int inf = 100000; //无限距离
 int dis[500];           //最短路径的长度
-int dis_x_y[500][500];  //两座城市间的距离
+int dis_x_y[500][500];  //两个点间的距离
 bool visit[500];
 int n, m, start;
 string path[500];  //到达每个点的最短路径
