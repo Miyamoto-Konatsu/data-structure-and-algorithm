@@ -1,0 +1,11 @@
+vector<string> split(string& str, char delim){
+    vector<string> arr;
+    // stringstream 实现
+    string tem;
+    stringstream ss(str);
+    // 默认用空格作为分隔符
+    // while(ss >> tem) arr.push_back(tem);
+    while(getline(ss, tem, delim)) if(tem != "")arr.push_back(tem);
+    
+    return arr;
+}
