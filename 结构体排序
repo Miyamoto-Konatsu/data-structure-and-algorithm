@@ -1,0 +1,31 @@
+#include <bits/stdc++.h>
+using namespace std;
+struct book
+{
+    string id;
+    string name;
+    bool operator<(const book &a) const
+    {
+        return   id == a.id?name>a.name:id<a.id;  //按id升序，id相等,则按name降序
+    }
+};
+
+
+int main()
+{
+    vector<book>maa;
+    map<book,int>mmm;
+   maa.push_back(book{"11","22"});
+   maa.push_back(book{"00","11"});
+   maa.push_back(book{"00","22"});
+   sort(maa.begin(),maa.end());  //vector需要sort
+    for(auto it:maa)
+    cout<<it.id<<it.name<<endl;
+    mmm[book{"11","22"}]=1;
+    mmm[book{"00","22"}]=1;
+    mmm[book{"00","11"}]=1; //map ,set不需要sort
+     for(auto it:mmm)
+    cout<<it.first.id<<it.first.name<<endl;
+    system("pause");
+    return 0;
+}
