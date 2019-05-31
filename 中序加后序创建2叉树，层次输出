@@ -1,0 +1,70 @@
+
+#include <cstdio>
+#include <cstring>
+#include <queue>
+#include <algorithm>
+
+using namespace std;
+
+const int maxn = 50;
+struct node{
+    node* lchild;
+    node* rchild;
+    int data;   
+};
+
+int n;
+int pre[maxn], in[maxn], post[maxn];
+
+//用中序+后序构造出二叉树，返回根节点指针 
+//递归实现 
+node* create(int postL, int postR, int inL, int inR){
+    if(postL > postR) return NULL; // 递归基：后序队列长度小于0 
+    //思路： 后序切割中序队列
+    node* root = new node;
+    root->data = post[postR];
+    int k;
+    for (k = inL; in[k] != post[postR]; k++) continue;  //中序队列中查找后序最后一点 
+
+    int numLeft = k - inL; //记录左子树的结点个数
+
+    //切分 
+    //返回左子树的根节点地址，赋值给root的左指针
+    root->lchild = create(postL, postL + numLeft - 1, inL, k - 1);
+    root->rchild = create(postL + numLeft, postR - 1, k + 1, inR);
+    return root; 
+}
+
+int num = 0;
+
+//层序遍历（BFS实现） 
+void BFS(node* root){
+     // BFS: 广度搜索，利用STL queue先进先出是实现 
+     queue<node*> q; 
+     q.push(root);
+     while(!q.empty()){
+        node* front = q.front();
+        q.pop();
+        printf("%d", front->data);
+        num++;
+        if (num < n) printf(" ");
+        // 子节点 入队列
+        if(front->lchild) q.push(front->lchild); //左子树非空 
+        if(front->rchild) q.push(front->rchild); //右子树非空 
+     }
+}
+
+int main() {
+    //后序 + 中序 -> 层序 
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++){
+        scanf("%d", &post[i]);
+    }
+    for (int i = 0; i < n; i++){
+        scanf("%d", &in[i]);
+    }
+    node* root = create(0, n - 1, 0, n - 1);
+    BFS(root);
+    system("pause");
+    return 0;
+}
