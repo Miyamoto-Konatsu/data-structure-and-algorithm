@@ -1,0 +1,46 @@
+#include "iostream"
+using namespace std;
+
+void permutation(char* a,int k,int m)
+{
+	int i,j;
+	if(k == m)
+	{
+       
+		for(i=0;i<=m;i++)
+			cout<<a[i];
+		cout<<endl;
+	}
+	else
+	{
+		for(j=k;j<=m;j++)
+		{
+           
+			swap(a[j],a[k]);
+			permutation(a,k+1,m);
+			swap(a[j],a[k]);
+           
+		}
+	}
+}
+enum tower{A='X',B='Y',C='Z'};
+void move(int n,tower x,tower y){
+    cout<<"the disk "<<n<<" is moved from "<<char(x)<<" to top of tower "<<char(y)<<endl;
+}
+void hanoi(int n,tower x,tower y,tower z){
+    if(n){
+        hanoi(n-1,x,z,y);
+        move(n,x,y);
+        hanoi(n-1,z,y,x);
+    }
+}
+int main(void)
+{
+	char a[] = "abcde";
+	cout<<a<<"全部全排列的结果为："<<endl;
+	permutation(a,0,4);
+    //hanoi(4,A,B,C);
+	system("pause");
+	return 0;
+}
+
