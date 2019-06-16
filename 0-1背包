@@ -1,0 +1,61 @@
+/* #include <bits/stdc++.h>
+
+using namespace std;
+
+int w[105], val[105];
+int dp[105][1005];
+int np[105];
+int main()
+{
+    
+    int t, m, res = -1;
+    cin >> t >> m;
+    for (int i = 1; i <= m; i++)
+        cin >> w[i] >> val[i];
+
+    for (int i = 1; i <= m; i++)     //物品
+        for (int j = t; j >= 0; j--) //容量
+        {
+            if (j >= w[i])
+                dp[i][j] = max(dp[i - 1][j - w[i]] + val[i], dp[i - 1][j]);
+            else //只是为了好理解
+                dp[i][j] = dp[i - 1][j];
+        }
+    for (int i = 1; i <= m; i++)
+    {
+        for (int j = 1; j <= t; j++)
+            cout << dp[i][j] << ' ';
+        cout << endl;
+    }
+
+    cout << dp[m][t] << endl;
+    system("pause");
+    return 0;
+} */
+ #include <bits/stdc++.h>
+
+using namespace std;
+
+int w[105], val[105];
+
+int np[105];
+int main()
+{
+    int t, m, res = -1;
+    cin >> t >> m;
+    for (int i = 1; i <= m; i++)
+        cin >> w[i] >> val[i];
+
+    for (int i = 1; i <= m; i++)     //物品
+        for (int j = t; j >= w[i]; j--) //容量
+        {
+                np[j]=np[j-w[i]]+val[i]>np[j]?np[j-w[i]]+val[i]:np[j];    
+        }
+    for (int i = 1; i <= t; i++)
+    {
+    
+        cout << np[i]<<' ';
+    }
+    system("pause");
+    return 0;
+} 
