@@ -1,0 +1,30 @@
+#include<iostream>
+#include<algorithm>
+#include <vector>
+using namespace std;
+
+void quick_sort(int a[],int low,int higt){
+  if(low>=higt)
+    return ;
+  int start=low,end=higt,pivot=a[low];
+  while(start<end){
+        while(start<end && a[end]>=pivot)
+          end--;
+        a[start]=a[end];
+        while(start<end && a[start]<=pivot)
+          start++;
+        a[end]=a[start];
+  }
+  a[start]=pivot;
+  quick_sort(a,low,start-1);
+  quick_sort(a,end+1,higt);
+} 
+int main(){
+     int a[7]={7,4,5,2,3,1,9};
+     quick_sort(a,0,6);
+     for(int i=0;i<7;i++){
+       printf("%d ",a[i]);
+     }
+   
+    system("pause");
+}
