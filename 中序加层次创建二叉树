@@ -1,0 +1,75 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Node
+{
+    char val;
+    Node *left;
+    Node *right;
+    Node(char val) : val(val), left(NULL), right(NULL) {}
+};
+
+void levelTravel(Node *&root)
+{
+    queue<Node *> q;
+    q.push(root);
+    while (!q.empty())
+    {
+        Node *t = q.front();
+        q.pop();
+        cout << t->val << ' ';
+        if (t->left)
+            q.push(t->left);
+        if (t->right)
+            q.push(t->right);
+    }
+    cout << endl;
+}
+
+void inOrderTravel(Node *&root)
+{
+    stack<Node *> st;
+    Node *p = root;
+    while (p or !st.empty())
+    {
+        while (p)
+        {
+            st.push(p);
+            p = p->left;
+        }
+        p = st.top();
+        st.pop();
+        cout << p->val << ' ';
+        p = p->right;
+    }
+}
+
+Node *buildTree(string &levelStr, string &inOrderStr, int left, int right)
+{
+    if (left > right)
+        return NULL;
+    Node *node;
+    for (char c : levelStr)
+    {
+        for (int i = left; i <= right; i++)
+        {
+            if (c == inOrderStr[i])
+            {
+                node = new Node(c);
+                node->left = buildTree(levelStr, inOrderStr, left, i - 1);
+                node->right = buildTree(levelStr, inOrderStr, i + 1, right);
+                return node;
+            }
+        }
+    }
+    return NULL;
+}
+int main()
+{
+    string levelStr = "ABCDEF";
+    string inOrderStr = "BADCFE";
+    Node *root = buildTree(levelStr, inOrderStr, 0, levelStr.size() - 1);
+    levelTravel(root);
+    inOrderTravel(root);
+    return 0;
+}
