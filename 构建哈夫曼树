@@ -1,0 +1,66 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Node
+{
+    int weight;
+    int parent;
+    int lchild, rchild;
+    Node() : weight(INT_MAX), parent(0), lchild(0), rchild(0) {}
+};
+
+void helper(Node *nodes,int &res,int pos,int depth);
+
+int getWPL(int *weight, int len)
+{
+    Node nodes[2 * len];
+    for (int i = len, j = 0; i < 2 * len; i++)
+        nodes[i].weight = weight[j++];
+    for (int i = len - 1; i > 0; i--)
+    {
+        int minweight1 = INT_MAX, minweight2 = INT_MAX;
+        int minpos1, minpos2;
+        for (int j = 1; j < 2 * len; j++)
+        {
+            if (nodes[j].parent == 0)
+            {
+                if (nodes[j].weight < minweight1)
+                {
+                    minweight2 = minweight1;
+                    minpos2 = minpos1;
+                    minpos1 = j;
+                    minweight1 = nodes[j].weight;
+                }
+                else if (nodes[j].weight < minweight2)
+                {
+                    minpos2 = j;
+                    minweight2 = nodes[j].weight;
+                }
+            }
+        }
+        nodes[i].weight = minweight1 + minweight2;
+        nodes[i].lchild = minpos1;
+        nodes[i].rchild = minpos2;
+        nodes[minpos1].parent = i;
+        nodes[minpos2].parent = i;
+    }
+    for (int i = 1; i < 2 * len; i++)
+        cout << nodes[i].weight << ' ' << nodes[i].lchild << ' ' << nodes[i].rchild << endl;
+    int res=0;
+    helper(nodes,res,1,0);
+    return res;
+}
+void helper(Node *nodes,int &res,int pos,int depth){
+    if(nodes[pos].lchild == 0)
+        res+=depth*nodes[pos].weight;
+    else{
+        helper(nodes,res,nodes[pos].lchild,depth+1);
+        helper(nodes,res,nodes[pos].rchild,depth+1);
+    }
+}
+int main()
+{
+    int weight[] = {5,7,2,3,6,8,9};
+    cout << getWPL(weight, 7);
+    return 0;
+}
