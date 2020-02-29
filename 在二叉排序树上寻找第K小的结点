@@ -1,0 +1,56 @@
+struct Node
+{
+    int val;
+    int count;
+    Node *left;
+    Node *right;
+    Node(int val) : val(val), count(1), left(NULL), right(NULL) {}
+};
+
+Node *insert(Node *node, int key)
+{
+    if (!node)
+    {
+        node = new Node(key);
+    }
+    else if (node->val < key)
+    {
+        node->right = insert(node->right, key);
+        node->count++;
+    }
+    else
+    {
+        node->left = insert(node->left, key);
+        node->count++;
+    }
+    return node;
+}
+Node *getK(Node *root, int k)
+{
+    int rchildCount = 0;
+    if (root->right)
+        rchildCount = root->right->count;
+    int pos = root->count - rchildCount;
+    if (pos == k)
+        return root;
+    if(pos>k)
+        return getK(root->left,k);
+    else 
+        return getK(root->right,k - pos);
+}
+
+int main()
+{
+    Node *root = NULL;
+    int x;
+    cin >> x;
+    while (x != -1)
+    {
+        root = insert(root, x);
+        cin >> x;
+    }
+    Node *t = getK(root, 2);
+    cout << t->val;
+    system("pause");
+    return 0;
+}
