@@ -7,7 +7,7 @@ int dis_x_y[500][500];  //两个点间的距离
 bool visit[500];
 int n, m, start;
 string path[500];  //到达每个点的最短路径
-string point[500]; //每个店的名称
+string point[500]; //每个点的名称
 void dijk()
 {
     dis[start] = 0;
