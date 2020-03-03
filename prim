@@ -1,0 +1,54 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+const int inf = INT_MAX;
+const int N = 6;
+bool visited[N];
+int dis[N];
+int mapp[N][N] = {
+    {inf, 6, 1, 5, inf, inf},
+    {6, inf, 5, inf, 3, inf},
+    {1, 5, inf, 5, 6, 4},
+    {5, inf, 5, inf, inf, 2},
+    {inf, 3, 6, inf, inf, 2},
+    {inf, inf, 4, 2, 6, inf},
+};
+/* int mapp[N][N] = {
+    {inf, inf, inf, inf, inf, inf},
+    {inf, inf, inf, inf, 3, inf},
+    {inf, inf, inf, inf, inf, 4},
+    {inf, inf, inf, inf, inf, 2},
+    {inf, 3, inf, inf, inf, 2},
+    {inf, inf, 4, 2, inf, inf},
+}; */
+void prim(int start)
+{
+    fill(visited, visited + N, false);
+    fill(dis, dis + N, inf);
+    dis[start] = 0;
+    int res = 0;
+    int i;
+    for (i = 0; i < N; i++)
+    {
+        int next = -1;
+        for (int j = 0; j < N; j++)
+            if (!visited[j] and (next == -1 or dis[j] < dis[next]))
+                next = j;
+        if (next == -1 or dis[next] == inf)
+            break;
+        visited[next] = 1;
+        res += dis[next];
+        for (int j = 0; j < N; j++)
+            dis[j] = min(dis[j], mapp[next][j]);  //更新能到达结点的最小距离
+    }
+    if (i == N)
+        cout << res;
+    else
+        cout << "非连通图";
+}
+
+int main()
+{
+    prim(0);
+    return 0;
+}
