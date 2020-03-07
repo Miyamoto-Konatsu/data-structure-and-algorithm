@@ -1,0 +1,150 @@
+//直接插入排序
+void directInsertSort(vector<int> nums) {
+    int i, j, t;
+    for (i = 1; i < nums.size(); i++) {
+        t = nums[i];
+        for (j = i; j > 0 && nums[j - 1] > t; --j)
+            nums[j] = nums[j - 1];
+        nums[j] = t;
+    }
+    /* print(nums); */
+}
+
+
+//折半插入排序
+void binaryInsertSort(vector<int> nums) {
+    int i, j, left, right, t;
+    for (i = 1; i < nums.size(); ++i) {
+        left = 0;
+        right = i;
+        t = nums[i];
+        while (left < right) {
+            int mid = left + (right - left >> 1);
+            if (t >= nums[mid])
+                left = mid + 1;
+            else
+                right = mid;
+        }
+        for (j = i; j > left; --j)
+            nums[j] = nums[j - 1];
+        nums[left] = t;
+    }
+    /* print(nums); */
+}
+
+
+//希尔排序
+void shallSort(vector<int> nums) {
+    int i, j, k, t;
+    for (k = nums.size() / 2; k >= 1; k /= 2)
+        for (i = k; i < nums.size(); ++i) {
+            t = nums[i];
+            for (j = i; j - k >= 0 && nums[j - k] > t; j -= k)
+                nums[j] = nums[j - k];
+            nums[j] = t;
+        }
+    /* print(nums); */
+}
+
+
+//冒泡排序
+void bubbleSort(vector<int> nums) {
+    for (int i = 0; i < nums.size(); i++) {
+        bool flag = true;
+        for (int j = nums.size() - 1; j > i; --j)
+            if (nums[j] < nums[j - 1]) {
+                swap(nums[j], nums[j - 1]);
+                flag = false;
+            }
+        if (flag)
+            return;
+    }
+}
+
+//快速排序
+void helper(vector<int>& nums, int low, int high) {
+    if (low >= high)
+        return;
+    int left = low, right = high;
+    int pivot = nums[left];
+    while (left < right) {
+        while (left < right && nums[right] >= pivot)
+            --right;
+        nums[left] = nums[right];
+        while (left < right && nums[left] <= pivot)
+            ++left;
+        nums[right] = nums[left];
+    }
+    nums[left] = pivot;
+    helper(nums, low, left - 1);
+    helper(nums, left + 1, high);
+}
+
+void quickSort(vector<int> nums) {
+    helper(nums, 0, nums.size() - 1);
+}
+
+//插入排序
+void insertSort(vector<int> nums) {
+    for (int i = 0; i < nums.size(); i++) {
+        int minPos = i;
+        for (int j = i + 1; j < nums.size();j++)
+            if(nums[j]<nums[minPos])
+                minPos=j;
+        swap(nums[i],nums[minPos]);
+    }
+}
+
+//堆排序
+void heapAdjust(vector<int>& nums, int pos, int len) {
+    nums[0] = nums[pos];
+    int i = pos * 2;
+    while (i < len) {
+        if (i + 1 < len && nums[i] < nums[i + 1])
+            ++i;
+        if (nums[i] > nums[0])
+            nums[i / 2] = nums[i];
+        else
+            break;
+        pos = i;
+        i *= 2;
+    }
+    nums[pos] = nums[0];
+}
+
+void makeHeap(vector<int>& nums) {
+    for (int i = nums.size() / 2; i > 0; --i)
+        heapAdjust(nums, i, nums.size());
+}
+
+void heapSort(vector<int>& nums) {
+    makeHeap(nums);
+    for (int i = nums.size() - 1; i > 1; --i) {
+        swap(nums[i], nums[1]);
+        heapAdjust(nums, 1, i);
+    }
+    /* print(nums); */
+}
+
+//归并排序
+void merge(vector<int>& nums, int low, int mid, int high) {
+    vector<int> tmp(high - low + 1);
+    int s = 0, left = low, t = mid + 1;
+    while (low <= mid || t <= high) {
+        if (t > high or (low <= mid && nums[t] > nums[low]))
+            tmp[s++] = nums[low++];
+        else
+            tmp[s++] = nums[t++];
+    }
+    for (int i : tmp)
+        nums[left++] = i;
+}
+
+void mergeSort(vector<int>& nums, int left, int right) {
+    if (left >= right)
+        return;
+    int mid = left + right >> 1;
+    mergeSort(nums, left, mid);
+    mergeSort(nums, mid + 1, right);
+    merge(nums, left, mid, right);
+}
