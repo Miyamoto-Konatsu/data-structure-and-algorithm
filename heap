@@ -57,3 +57,58 @@ public class HeapSort {
         arr[b] = temp;
     }
 }
+
+----------------------------------------------------------------------------------------------------------
+C++
+
+#include <bits/stdc++.h>
+using namespace std;
+
+void print(vector<int>& nums) {
+    for (int num : nums)
+        cout << num << ' ';
+    cout << endl;
+}
+
+void heapAdjust(vector<int>& nums, int pos, int len) {
+    nums[0] = nums[pos];
+    int i = pos * 2;
+    while (i < len) {
+        if (i + 1 < len && nums[i] < nums[i + 1])
+            ++i;
+        if (nums[i] > nums[0])
+            nums[i / 2] = nums[i];
+        else
+            break;
+        pos = i;
+        i *= 2;
+    }
+    nums[pos] = nums[0];
+}
+
+void makeHeap(vector<int>& nums) {
+    for (int i = nums.size() / 2; i > 0; --i)
+        heapAdjust(nums, i, nums.size());
+}
+
+void heapSort(vector<int>& nums) {
+    makeHeap(nums);
+    for (int i = nums.size() - 1; i > 1; --i) {
+        swap(nums[i], nums[1]);
+        heapAdjust(nums, 1, i);
+    }
+    /* print(nums); */
+}
+int main() {
+    vector<int> nums;
+    for (int i = 0; i < 10000000; i++)
+        nums.push_back(rand()%10000);
+    clock_t start, end;
+    start = clock();
+    heapSort(nums);
+    end = clock();
+    cout << end - start << endl;
+    return 0;
+}
+
+
