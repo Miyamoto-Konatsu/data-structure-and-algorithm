@@ -1,0 +1,31 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int my_lower_bound(vector<int>& array, int target) {
+    int left = 0, right = array.size() - 1;
+    while (left <= right) {
+        int mid = left + right >> 1;
+        if (array[mid] < target)
+            left = mid + 1;
+        else
+            right = mid - 1;
+    }
+    return left;
+}
+int my_upper_bound(vector<int>& array, int target) {
+    int left = 0, right = array.size() - 1;
+    while (left <= right) {
+        int mid = left + right >> 1;
+        if (array[mid] <= target)
+            left = mid + 1;
+        else
+            right = mid - 1;
+    }
+    return left;
+}
+int main() {
+    vector<int>array={0,1,2,4,5,5,6,6,6,7,8,9};
+    cout<<my_lower_bound(array,6)<<endl;
+    cout<<my_upper_bound(array,6);
+    return 0;
+}
