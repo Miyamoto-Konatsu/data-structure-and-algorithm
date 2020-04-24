@@ -1,0 +1,15 @@
+int gcd1(int a, int b) {  //迭代法
+    int t;
+    while (a % b != 0) {
+        t = a % b;
+        a = b;
+        b = t;
+    }
+    return b;
+}
+
+int gcd2(int a, int b) {  //递归
+    return a % b == 0 ? b : gcd2(b, a % b);
+}
+
+__gcd(int a,int b); //c++ 库函数
