@@ -1,0 +1,95 @@
+class MyLinkedList {
+    struct ListNode {
+        int val;
+        ListNode* prev;
+        ListNode* next;
+        ListNode(int val) {
+            this->val = val;
+            this->next = NULL;
+            this->prev = NULL;
+        }
+    };
+
+   public:
+    MyLinkedList() {
+        size = 0;
+        head = new ListNode(0);
+        tail = new ListNode(0);
+        head->next = tail;
+        head->prev = tail;
+        tail->next = head;
+        tail->prev = head;
+    }
+
+    int get(int index) {
+        if (index < 0 || index >= size)
+            return -1;
+        ListNode* cur=getNode(index);
+        return cur->val;
+    }
+
+    void addAtHead(int val) {
+        ++size;
+        ListNode* newNode = new ListNode(val);
+        newNode->next = head->next;
+        head->next->prev = newNode;
+        newNode->prev = head;
+        head->next = newNode;
+    }
+
+    void addAtTail(int val) {
+        ++size;
+        ListNode* newNode = new ListNode(val);
+        newNode->next = tail;
+        newNode->prev = tail->prev;
+        tail->prev->next = newNode;
+        tail->prev = newNode;
+    }
+
+    void addAtIndex(int index, int val) {
+        index = max(index, 0);
+        if (index > size)
+            return;
+        if(index == size){
+            addAtTail(val);
+            return;
+        }
+        ListNode* cur = getNode(index);
+        ListNode* newNode = new ListNode(val);
+        newNode->next = cur;
+        newNode->prev = cur->prev;
+        cur->prev->next = newNode;
+        cur->prev = newNode;
+        ++size;
+    }
+
+    void deleteAtIndex(int index) {
+        if (index < 0 || index >= size)
+            return;
+        ListNode* cur = getNode(index);
+        cur->next->prev = cur->prev;
+        cur->prev->next = cur->next;
+        --size;
+    }
+
+   private:
+    int size;
+    ListNode *head, *tail;
+
+    ListNode* getNode(int index) {
+        ListNode* cur;
+        if (index > size / 2) {
+            cur = tail->prev;
+            index = size - index - 1;
+            while (index--) {
+                cur = cur->prev;
+            }
+        } else {
+            cur = head->next;
+            while (index--) {
+                cur = cur->next;
+            }
+        }
+        return cur;
+    }
+};
