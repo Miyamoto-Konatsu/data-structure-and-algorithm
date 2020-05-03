@@ -1,0 +1,63 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Node {
+    int val;
+    Node* next;
+    Node(int x) : val(x), next(NULL) {}
+};
+struct myQueue {
+    Node *front, *rear;
+};
+void init(myQueue*& queue) {
+    queue->front = new Node(0);
+    queue->rear = queue->front;
+    queue->rear->next = queue->front;
+}
+void push(myQueue*& queue, int val) {
+    queue->rear->val = val;
+    if (queue->rear->next == queue->front) {
+        Node* node = new Node(0);
+        node->next = queue->front;
+        queue->rear->next = node;
+    }
+    queue->rear = queue->rear->next;
+}
+void pop(myQueue*& queue) {
+    if (queue->rear == queue->front)
+        return;
+    cout << "pop " << queue->front->val << endl;
+    queue->front = queue->front->next;
+}
+
+int getLength(myQueue*& queue) {
+    Node* cur = queue->front->next;
+    int size = 0;
+    while (cur != queue->front) {
+        ++size;
+        cur = cur->next;
+    }
+    return size;
+}
+int main() {
+    myQueue* queue = new myQueue;
+    init(queue);
+    for (int i = 0; i < 10; i++) {
+        int v = rand() % 10;
+        push(queue, v);
+        cout << v << ' ';
+    }
+    cout << endl;
+    for (int i = 0; i < 100; i++)
+        pop(queue);
+    for (int i = 0; i < 10; i++) {
+        int v = rand() % 10;
+        push(queue, v);
+        cout << v << ' ';
+    }
+    cout << endl;
+    for (int i = 0; i < 5; i++)
+        pop(queue);
+    cout << "size " << getLength(queue) << endl;
+    return 0;
+}
